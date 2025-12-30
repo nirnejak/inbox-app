@@ -16,21 +16,21 @@ interface EMAIL {
   read: boolean
 }
 
-interface RAW_EMAIL {
-  id: string
-  from: string
-  address: string
-  time: string
-  message: string
-  subject: string
-  tag: string
-  read: string
-}
+type Replace<T, R> = Omit<T, keyof R> & R
+
+type RAW_EMAIL = Replace<EMAIL, { id: string; read: string }>
 
 const fetchEmails = async () => {
   const response = await fetch(API_URL)
   const data = response.json()
   return data
+}
+
+const formatDateTime = (datetime: string) => {
+  const now = new Date(datetime)
+  const dateStr = now.toISOString().split("T")[0]
+  const timeStr = now.toTimeString().split(" ")[0]
+  return `${dateStr} ${timeStr}`
 }
 
 const Inbox: React.FC = () => {
@@ -58,32 +58,25 @@ const Inbox: React.FC = () => {
     setSelectedEmail(index)
     setEmails((currentEmails) => {
       return currentEmails.map((email, i) => {
-        if (i === index) {
-          return {
-            ...email,
-            read: true,
-          }
-        } else {
-          return email
+        return {
+          ...email,
+          read: i === index ? true : email.read,
         }
       })
     })
   }
 
-  const formatDateTime = (datetime: string) => {
-    const now = new Date(datetime)
-    const dateStr = now.toISOString().split("T")[0]
-    const timeStr = now.toTimeString().split(" ")[0]
-    return `${dateStr} ${timeStr}`
-  }
-
-  return (
-    <main className="grid grid-cols-5 h-dvh">
-      <aside className="max-h-dvh overflow-y-scroll bg-zinc-100 border-r border-dashed border-zinc-300">
-        {isFetching ? (
-          <div className="pt-3 text-center">Getting your email...</div>
-        ) : (
-          emails.map((email, index) => (
+  if (isFetching) {
+    return (
+      <main className="grid place-content-center h-dvh">
+        Getting your email...
+      </main>
+    )
+  } else {
+    return (
+      <main className="grid grid-cols-5 h-dvh">
+        <aside className="max-h-dvh overflow-y-scroll bg-zinc-100 border-r border-dashed border-zinc-300">
+          {emails.map((email, index) => (
             <button
               key={index}
               onClick={() => openEmail(index)}
@@ -95,35 +88,35 @@ const Inbox: React.FC = () => {
               <span className="text-sm font-medium">{email.from}</span>
               <span className="text-xs">{email.subject}</span>
             </button>
-          ))
-        )}
-      </aside>
-      <section className="col-span-4 max-h-dvh overflow-y-scroll bg-zinc-100">
-        {selectedEmail === null ? (
-          <p className="p-5 size-full text-center tracking-tighter text-zinc-700 pt-20">
-            Select an email to preview
-          </p>
-        ) : (
-          <div>
-            <div className="w-full border-b border-dashed p-5 border-zinc-300">
-              <p className="tracking-tight">
-                From: {emails[selectedEmail].from}
-              </p>
-              <p className="text-sm tracking-tight">
-                Subject: {emails[selectedEmail].subject}
-              </p>
-              <p className="text-sm tracking-tight">
-                Received at: {formatDateTime(emails[selectedEmail].time)}
-              </p>
+          ))}
+        </aside>
+        <section className="col-span-4 max-h-dvh overflow-y-scroll bg-zinc-100">
+          {selectedEmail === null ? (
+            <p className="p-5 size-full text-center tracking-tighter text-zinc-700 pt-20">
+              Select an email to preview
+            </p>
+          ) : (
+            <div>
+              <div className="w-full border-b border-dashed p-5 border-zinc-300">
+                <p className="tracking-tight">
+                  From: {emails[selectedEmail].from}
+                </p>
+                <p className="text-sm tracking-tight">
+                  Subject: {emails[selectedEmail].subject}
+                </p>
+                <p className="text-sm tracking-tight">
+                  Received at: {formatDateTime(emails[selectedEmail].time)}
+                </p>
+              </div>
+              <div className="w-full p-5 tracking-tighter">
+                {emails[selectedEmail].message}
+              </div>
             </div>
-            <div className="w-full p-5 tracking-tighter">
-              {emails[selectedEmail].message}
-            </div>
-          </div>
-        )}
-      </section>
-    </main>
-  )
+          )}
+        </section>
+      </main>
+    )
+  }
 }
 
 export default Inbox
