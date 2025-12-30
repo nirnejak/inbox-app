@@ -79,7 +79,7 @@ const Inbox: React.FC = () => {
 
   return (
     <main className="grid grid-cols-5 h-dvh">
-      <aside className="max-h-dvh overflow-y-scroll bg-zinc-100">
+      <aside className="max-h-dvh overflow-y-scroll bg-zinc-100 border-r border-dashed border-zinc-300">
         {isFetching ? (
           <div className="pt-3 text-center">Getting your email...</div>
         ) : (
@@ -89,23 +89,23 @@ const Inbox: React.FC = () => {
               onClick={() => openEmail(index)}
               className={classNames(
                 email.read ? "bg-zinc-100" : "bg-zinc-200",
-                "flex flex-col w-full text-left px-3 py-1.5 tracking-tight border-b border-b-zinc-300 hover:bg-zinc-300 transition-colors"
+                "flex flex-col w-full text-left px-3 py-1.5 tracking-tight border-b border-dashed border-zinc-300 hover:bg-zinc-300 transition-colors"
               )}
             >
-              <p className="text-sm font-medium">{email.from}</p>
-              <p className="text-xs">{email.subject}</p>
+              <span className="text-sm font-medium">{email.from}</span>
+              <span className="text-xs">{email.subject}</span>
             </button>
           ))
         )}
       </aside>
-      <section className="col-span-4 max-h-dvh overflow-y-scroll">
+      <section className="col-span-4 max-h-dvh overflow-y-scroll bg-zinc-100">
         {selectedEmail === null ? (
-          <p className="p-5 size-full text-center tracking-tight text-zinc-700 pt-20">
+          <p className="p-5 size-full text-center tracking-tighter text-zinc-700 pt-20">
             Select an email to preview
           </p>
         ) : (
-          <div className="">
-            <div className="w-full border-b p-5 border-zinc-200">
+          <div>
+            <div className="w-full border-b border-dashed p-5 border-zinc-300">
               <p className="tracking-tight">
                 From: {emails[selectedEmail].from}
               </p>
@@ -116,7 +116,7 @@ const Inbox: React.FC = () => {
                 Received at: {formatDateTime(emails[selectedEmail].time)}
               </p>
             </div>
-            <div className="w-full p-5 tracking-tight">
+            <div className="w-full p-5 tracking-tighter">
               {emails[selectedEmail].message}
             </div>
           </div>
